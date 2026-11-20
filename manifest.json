@@ -1,0 +1,50 @@
+{
+  "manifest_version": 3,
+  "name": "TabStash — Better Tab Groups",
+  "short_name": "TabStash",
+  "version": "1.0.0",
+  "description": "A searchable library for your tab groups. Multi-select tabs, save groups, and reopen them in the current window, a new window, or incognito.",
+  "minimum_chrome_version": "116",
+  "permissions": ["tabs", "tabGroups", "storage", "favicon"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "TabStash",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "options_ui": {
+    "page": "dashboard/dashboard.html",
+    "open_in_tab": true
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+S",
+        "mac": "Alt+Shift+S"
+      },
+      "description": "Open the TabStash popup"
+    },
+    "open-dashboard": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+E",
+        "mac": "Command+Shift+E"
+      },
+      "description": "Open the TabStash dashboard"
+    }
+  },
+  "incognito": "spanning"
+}

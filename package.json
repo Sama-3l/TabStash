@@ -1,0 +1,10 @@
+{
+  "name": "tabstash",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "preview": "node tools/preview-server.mjs",
+    "check": "node --check background.js && node --check dashboard/dashboard.js && node --check popup/popup.js && node --check shared/store.js && node --check shared/actions.js && node --check shared/icons.js && node --check shared/drag-select.js"
+  }
+}

@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TabStash — Saved groups</title>
+    <link rel="icon" href="../icons/icon32.png" />
+    <link rel="stylesheet" href="../shared/theme.css" />
+    <link rel="stylesheet" href="dashboard.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-mark" data-brand></span>
+          <span class="brand-text">
+            <strong>TabStash</strong>
+            <small>Better tab groups</small>
+          </span>
+        </div>
+
+        <nav class="side-nav" aria-label="Views">
+          <button class="nav-item active" data-view="groups" type="button">
+            <span data-icon="layers" data-size="17"></span>
+            <span class="nav-label">Saved groups</span>
+            <span class="nav-count" id="navGroupCount">0</span>
+          </button>
+          <button class="nav-item" data-view="tabs" type="button">
+            <span data-icon="tab" data-size="17"></span>
+            <span class="nav-label">Open tabs</span>
+            <span class="nav-count" id="navTabCount">0</span>
+          </button>
+        </nav>
+
+        <div class="side-section" id="groupsFilters">
+          <div class="side-label">Status</div>
+          <div class="segmented" id="statusFilter" role="group" aria-label="Filter by status">
+            <button type="button" class="active" data-status="all">All</button>
+            <button type="button" data-status="live">Open</button>
+            <button type="button" data-status="closed">Saved</button>
+          </div>
+
+          <div class="side-label side-label-spaced">Color</div>
+          <div class="color-filter" id="colorFilter" role="group" aria-label="Filter by color"></div>
+        </div>
+
+        <div class="side-stats">
+          <div class="stat">
+            <span class="stat-value" id="statGroups">0</span>
+            <span class="stat-label">saved groups</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat">
+            <span class="stat-value" id="statTabs">0</span>
+            <span class="stat-label">tabs stashed</span>
+          </div>
+        </div>
+
+        <div class="side-foot">
+          <button class="side-action" id="syncBtn" type="button" title="Sync library with Chrome">
+            <span data-icon="refresh" data-size="16"></span>
+            <span>Sync library</span>
+          </button>
+          <button class="side-action" id="settingsBtn" type="button" title="Settings">
+            <span data-icon="settings" data-size="16"></span>
+            <span>Settings</span>
+          </button>
+          <button class="side-action" id="themeBtn" type="button" title="Theme: auto">
+            <span data-icon="auto" data-size="16"></span>
+            <span id="themeLabel">Theme: auto</span>
+          </button>
+        </div>
+      </aside>
+
+      <main class="main" id="main">
+        <header class="page-head">
+          <div class="page-title">
+            <div class="eyebrow" id="eyebrow">Library</div>
+            <h1 id="pageTitle">Saved groups</h1>
+            <p id="pageSubtitle">Every tab group, saved and ready to reopen.</p>
+          </div>
+          <div class="head-actions">
+            <button class="btn ghost" id="importBtn" type="button" title="Import groups from JSON">
+              <span data-icon="upload" data-size="16"></span>
+              <span class="btn-label">Import</span>
+            </button>
+            <div class="split-group">
+              <button class="btn primary split" id="newGroupBtn" type="button" title="Pick tabs to save">
+                <span data-icon="plus" data-size="16"></span>
+                <span>New group</span>
+              </button>
+              <button class="btn primary split-toggle" id="newGroupMenuBtn" type="button" title="More ways to create a group" aria-label="More ways to create a group">
+                <span class="btn-caret" data-icon="chevronDown" data-size="14"></span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <section class="view" id="groupsView">
+          <div class="toolbar">
+            <label class="search">
+              <span data-icon="search" data-size="16"></span>
+              <input id="groupSearch" type="search" placeholder="Search groups, tabs, or sites…" autocomplete="off" spellcheck="false" />
+              <kbd>/</kbd>
+            </label>
+            <div class="toolbar-right">
+              <label class="select">
+                <span data-icon="sort" data-size="15"></span>
+                <select id="groupSort" aria-label="Sort groups">
+                  <option value="recent">Recently updated</option>
+                  <option value="created">Recently created</option>
+                  <option value="name">Name A–Z</option>
+                  <option value="size">Most tabs</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <table class="data-table groups-table">
+              <thead>
+                <tr>
+                  <th class="check-col">
+                    <input type="checkbox" id="selectAllGroups" aria-label="Select all visible groups" />
+                  </th>
+                  <th>Group</th>
+                  <th class="num">Tabs</th>
+                  <th>Status</th>
+                  <th class="domains-col">Top sites</th>
+                  <th>Updated</th>
+                  <th class="actions-col"><span class="sr-only">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody id="groupsBody"></tbody>
+            </table>
+            <div class="empty" id="groupsEmpty" hidden>
+              <span class="empty-icon" data-icon="layers" data-size="26"></span>
+              <h2 id="groupsEmptyTitle">No saved groups yet</h2>
+              <p id="groupsEmptyText">
+                Save a Chrome tab group, or click New group to pick tabs. TabStash keeps a copy so your groups survive closing.
+              </p>
+              <div class="empty-actions">
+                <button class="btn primary" type="button" data-empty-action="new">
+                  <span data-icon="plus" data-size="16"></span> Create a group
+                </button>
+                <button class="btn ghost" type="button" data-empty-action="tabs">Pick open tabs</button>
+              </div>
+            </div>
+          </div>
+          <p class="table-footnote" id="groupsFootnote"></p>
+        </section>
+
+        <section class="view" id="tabsView" hidden>
+          <div class="toolbar">
+            <label class="search">
+              <span data-icon="search" data-size="16"></span>
+              <input id="tabSearch" type="search" placeholder="Search open tabs…" autocomplete="off" spellcheck="false" />
+            </label>
+            <div class="toolbar-right">
+              <label class="select select-window">
+                <span data-icon="window" data-size="15"></span>
+                <select id="windowFilter" aria-label="Filter by window">
+                  <option value="all">All windows</option>
+                  <option value="current">This window</option>
+                </select>
+              </label>
+              <label class="select select-group">
+                <span data-icon="folder" data-size="15"></span>
+                <select id="tabGroupFilter" aria-label="Filter by tab group">
+                  <option value="all">All groups</option>
+                  <option value="ungrouped">Ungrouped</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <table class="data-table tabs-table">
+              <thead>
+                <tr>
+                  <th class="check-col"><input type="checkbox" id="selectAllTabs" aria-label="Select all visible tabs" /></th>
+                  <th>Tab</th>
+                  <th>Window</th>
+                  <th>Tab group</th>
+                  <th class="last-active-col">Last active</th>
+                </tr>
+              </thead>
+              <tbody id="tabsBody"></tbody>
+            </table>
+            <div class="empty" id="tabsEmpty" hidden>
+              <span class="empty-icon" data-icon="tab" data-size="26"></span>
+              <h2 id="tabsEmptyTitle">No tabs match</h2>
+              <p id="tabsEmptyText">Try a different window, group, or search term.</p>
+              <div class="empty-actions">
+                <button class="btn ghost" type="button" id="clearTabFilters">Clear filters</button>
+              </div>
+            </div>
+          </div>
+          <p class="table-footnote" id="tabsFootnote">Select tabs with the checkboxes, then save or group them.</p>
+        </section>
+      </main>
+    </div>
+
+    <div class="selection-bar" id="selectionBar" hidden>
+      <div class="selection-info">
+        <span class="selection-count" id="selectionCount"></span>
+        <span class="selection-sub" id="selectionSub"></span>
+      </div>
+      <div class="selection-actions" id="selectionActions"></div>
+      <button class="icon-btn selection-clear" id="clearSelection" type="button" title="Clear selection" aria-label="Clear selection">
+        <span data-icon="x" data-size="16"></span>
+      </button>
+    </div>
+
+    <div class="toast-host" id="toastHost" aria-live="polite"></div>
+    <div id="menuLayer"></div>
+
+    <div class="tab-picker" id="tabPicker" role="dialog" aria-label="Pick tabs to save" hidden>
+      <div class="picker-head">
+        <div class="picker-heading">
+          <div class="picker-eyebrow">New group</div>
+          <h2>Pick tabs</h2>
+        </div>
+        <div class="picker-head-right">
+          <span class="picker-count" id="pickerCount">0 selected</span>
+          <button class="icon-btn" id="pickerClose" type="button" aria-label="Close tab picker">
+            <span data-icon="x" data-size="15"></span>
+          </button>
+        </div>
+      </div>
+      <label class="picker-search">
+        <span data-icon="search" data-size="15"></span>
+        <input id="pickerSearch" type="search" placeholder="Filter open tabs…" autocomplete="off" spellcheck="false" />
+      </label>
+      <div class="picker-tools">
+        <label class="picker-all">
+          <input type="checkbox" id="pickerSelectAll" />
+          <span>Select all</span>
+        </label>
+        <span class="picker-tip">Drag or Shift-click to select a run.</span>
+      </div>
+      <div class="picker-list" id="pickerList"></div>
+      <div class="picker-empty" id="pickerEmpty" hidden>
+        <strong>No tabs match</strong>
+        <span>Try another search term.</span>
+      </div>
+      <div class="picker-foot">
+        <span class="picker-note" id="pickerNote">Nothing selected yet</span>
+        <div class="picker-actions">
+          <button class="btn ghost" id="pickerGroup" type="button" disabled>Save snapshot</button>
+          <button class="btn primary" id="pickerSave" type="button" disabled>Save &amp; group</button>
+        </div>
+      </div>
+    </div>
+
+    <dialog class="dialog" id="groupDialog">
+      <form class="dialog-card" id="groupForm" novalidate>
+        <header class="dialog-head">
+          <div>
+            <h2 id="groupDialogTitle">New group</h2>
+            <p class="dialog-sub" id="groupDialogSub">Give your group a name and a color.</p>
+          </div>
+          <button class="icon-btn" type="button" data-dialog-close aria-label="Close">
+            <span data-icon="x" data-size="16"></span>
+          </button>
+        </header>
+        <label class="field">
+          <span class="field-label">Name</span>
+          <div class="name-field">
+            <input class="text-input" id="groupName" type="text" maxlength="160" placeholder="e.g. Design research" required />
+            <span class="name-suffix" id="groupNameSuffix" hidden></span>
+          </div>
+        </label>
+        <div class="field" id="groupColorField">
+          <span class="field-label">Color</span>
+          <div class="swatches" id="groupColors" role="radiogroup" aria-label="Group color"></div>
+        </div>
+        <p class="dialog-hint" id="groupDialogHint" hidden></p>
+        <footer class="dialog-foot">
+          <button class="btn ghost" type="button" data-dialog-close>Cancel</button>
+          <button class="btn primary" type="submit" id="groupSubmit">Save group</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <dialog class="dialog" id="confirmDialog">
+      <form class="dialog-card" id="confirmForm">
+        <header class="dialog-head">
+          <div>
+            <h2 id="confirmTitle">Are you sure?</h2>
+            <p class="dialog-sub" id="confirmBody"></p>
+          </div>
+        </header>
+        <div class="confirm-note" id="confirmNote" hidden></div>
+        <footer class="dialog-foot">
+          <button class="btn ghost" type="button" data-dialog-close>Cancel</button>
+          <button class="btn danger" type="submit" id="confirmSubmit">Delete</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <dialog class="dialog dialog-wide" id="settingsDialog">
+      <div class="dialog-card">
+        <header class="dialog-head">
+          <div>
+            <h2>Settings</h2>
+            <p class="dialog-sub">Preferences are stored locally on this device.</p>
+          </div>
+          <button class="icon-btn" type="button" data-dialog-close aria-label="Close">
+            <span data-icon="x" data-size="16"></span>
+          </button>
+        </header>
+
+        <div class="settings-group">
+          <h3>Library</h3>
+          <label class="setting-row">
+            <span class="setting-copy">
+              <strong>Auto-save new tab groups</strong>
+              <small>Every Chrome tab group is kept in your library, even after you close it.</small>
+            </span>
+            <input type="checkbox" class="switch" data-setting="autoSave" />
+          </label>
+          <label class="setting-row">
+            <span class="setting-copy">
+              <strong>Skip tabs that are already open</strong>
+              <small>When opening a group in this window, leave duplicate tabs alone.</small>
+            </span>
+            <input type="checkbox" class="switch" data-setting="skipExisting" />
+          </label>
+          <label class="setting-row">
+            <span class="setting-copy">
+              <strong>Confirm before deleting groups</strong>
+              <small>Ask before removing groups from your library.</small>
+            </span>
+            <input type="checkbox" class="switch" data-setting="confirmDelete" />
+          </label>
+          <label class="setting-row">
+            <span class="setting-copy">
+              <strong>Track incognito tab groups</strong>
+              <small>Off by default. Incognito groups stay out of your normal library.</small>
+            </span>
+            <input type="checkbox" class="switch" data-setting="trackIncognito" />
+          </label>
+        </div>
+
+        <div class="settings-group">
+          <h3>Appearance</h3>
+          <div class="theme-picker" id="themePicker">
+            <button type="button" data-theme-choice="auto"><span data-icon="auto" data-size="16"></span> Auto</button>
+            <button type="button" data-theme-choice="light"><span data-icon="sun" data-size="16"></span> Light</button>
+            <button type="button" data-theme-choice="dark"><span data-icon="moon" data-size="16"></span> Dark</button>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h3>Incognito access</h3>
+          <div class="incognito-status" id="incognitoStatus">
+            <span class="status-dot"></span>
+            <span class="incognito-copy"></span>
+          </div>
+          <p class="settings-hint">
+            To open groups in incognito, enable <strong>Allow in Incognito</strong> for TabStash on
+            <code>chrome://extensions</code> → Details.
+          </p>
+        </div>
+
+        <div class="settings-group">
+          <h3>Data</h3>
+          <div class="settings-actions">
+            <button class="btn ghost" id="exportAllBtn" type="button"><span data-icon="download" data-size="15"></span> Export all</button>
+            <button class="btn ghost" id="importSettingsBtn" type="button"><span data-icon="upload" data-size="15"></span> Import</button>
+            <button class="btn danger-ghost" id="clearDataBtn" type="button"><span data-icon="trash" data-size="15"></span> Delete everything</button>
+          </div>
+          <p class="settings-hint">
+            Shortcuts: <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> opens the popup, <kbd>⌘/Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd> opens this dashboard.
+          </p>
+        </div>
+
+        <footer class="dialog-foot">
+          <span class="dialog-version">TabStash v1.0.0</span>
+          <button class="btn primary" type="button" data-dialog-close>Done</button>
+        </footer>
+      </div>
+    </dialog>
+
+    <input type="file" id="importFile" accept="application/json,.json" hidden />
+    <script type="module" src="dashboard.js"></script>
+  </body>
+</html>

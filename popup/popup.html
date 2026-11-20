@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+  <head>
+    <meta charset="utf-8" />
+    <title>TabStash</title>
+    <link rel="icon" href="../icons/icon32.png" />
+    <link rel="stylesheet" href="../shared/theme.css" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="pop-head">
+      <div class="pop-brand">
+        <span class="pop-mark" data-brand></span>
+        <div class="pop-brand-text">
+          <strong>TabStash</strong>
+          <small>Better tab groups</small>
+        </div>
+      </div>
+      <button class="icon-btn" id="dashboardBtn" type="button" title="Open dashboard" aria-label="Open dashboard">
+        <span data-icon="layers" data-size="17"></span>
+      </button>
+    </header>
+
+    <div class="pop-toolbar">
+      <label class="pop-search">
+        <span data-icon="search" data-size="15"></span>
+        <input id="search" type="search" placeholder="Search saved groups…" autocomplete="off" spellcheck="false" />
+        <kbd>/</kbd>
+      </label>
+      <div class="segmented pop-segmented" id="statusFilter" role="group" aria-label="Filter groups">
+        <button type="button" class="active" data-status="all">All</button>
+        <button type="button" data-status="live">Open</button>
+        <button type="button" data-status="saved">Saved</button>
+      </div>
+    </div>
+
+    <main class="pop-body" id="popBody">
+      <div class="pop-list" id="groupList"></div>
+      <div class="pop-empty" id="empty" hidden>
+        <span class="pop-empty-icon" data-icon="layers" data-size="22"></span>
+        <strong id="emptyTitle">No saved groups yet</strong>
+        <p id="emptyText">Save this window to start building your library.</p>
+      </div>
+    </main>
+
+    <section class="pop-picker" id="tabPicker" aria-label="Pick tabs to save" hidden>
+      <div class="picker-head">
+        <div class="picker-heading">
+          <strong>Pick tabs</strong>
+          <small id="pickerCount">0 selected</small>
+        </div>
+        <button class="icon-btn" id="pickerClose" type="button" title="Back to saved groups" aria-label="Close tab picker">
+          <span data-icon="x" data-size="15"></span>
+        </button>
+      </div>
+
+      <label class="pop-search picker-search">
+        <span data-icon="search" data-size="14"></span>
+        <input id="pickerSearch" type="search" placeholder="Filter open tabs…" autocomplete="off" spellcheck="false" />
+      </label>
+
+      <div class="picker-tools">
+        <label class="picker-all">
+          <input type="checkbox" id="pickerSelectAll" />
+          <span>Select all</span>
+        </label>
+        <span class="picker-tip">Drag or Shift-click to select a run.</span>
+      </div>
+
+      <div class="picker-list" id="pickerList"></div>
+      <div class="picker-empty" id="pickerEmpty" hidden>
+        <strong>No tabs match</strong>
+        <span>Try another search term.</span>
+      </div>
+
+      <div class="picker-form">
+        <div class="picker-name-field">
+          <input id="pickerName" class="picker-name" type="text" maxlength="80" placeholder="Group name" autocomplete="off" spellcheck="false" aria-label="Group name" />
+          <span class="name-suffix" id="pickerNameSuffix"></span>
+        </div>
+        <div class="picker-colors" id="pickerColors" role="group" aria-label="Group color"></div>
+      </div>
+
+      <div class="picker-foot">
+        <span class="picker-note" id="pickerNote">Nothing selected yet</span>
+        <div class="picker-actions">
+          <button class="btn ghost" id="pickerGroup" type="button" disabled>Snapshot</button>
+          <button class="btn primary" id="pickerSave" type="button" disabled>Save &amp; group</button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="pop-foot" id="popFoot">
+      <div class="pop-split">
+        <button class="btn primary pop-save" id="newGroupBtn" type="button" title="Pick tabs to save">
+          <span data-icon="plus" data-size="15"></span>
+          <span>New group</span>
+        </button>
+        <button class="btn primary pop-split-toggle" id="newGroupMenuBtn" type="button" title="More save options" aria-label="More save options">
+          <span class="btn-caret" data-icon="chevronDown" data-size="14"></span>
+        </button>
+      </div>
+      <button class="btn ghost pop-open-dashboard" id="openDashboardBtn" type="button">
+        <span data-icon="external" data-size="15"></span>
+        <span>Dashboard</span>
+      </button>
+    </footer>
+
+    <div class="pop-menu" id="popMenu" role="menu" hidden></div>
+
+    <dialog class="pop-dialog" id="renameDialog">
+      <form class="pop-dialog-card" id="renameForm" novalidate>
+        <header class="pop-dialog-head">
+          <div>
+            <h2>Rename group</h2>
+            <p class="pop-dialog-sub" id="renameSub">Update the saved name.</p>
+          </div>
+          <button class="icon-btn" type="button" data-dialog-close aria-label="Close">
+            <span data-icon="x" data-size="15"></span>
+          </button>
+        </header>
+        <label class="pop-field">
+          <span class="pop-field-label">Name</span>
+          <input class="text-input" id="renameInput" type="text" maxlength="80" autocomplete="off" spellcheck="false" />
+        </label>
+        <p class="pop-dialog-hint" id="renameHint" hidden></p>
+        <footer class="pop-dialog-foot">
+          <button class="btn ghost" type="button" data-dialog-close>Cancel</button>
+          <button class="btn primary" type="submit" id="renameSubmit">Save name</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <dialog class="pop-dialog" id="confirmDialog">
+      <form class="pop-dialog-card" id="confirmForm">
+        <header class="pop-dialog-head">
+          <div>
+            <h2 id="confirmTitle">Are you sure?</h2>
+            <p class="pop-dialog-sub" id="confirmBody"></p>
+          </div>
+        </header>
+        <div class="pop-dialog-note" id="confirmNote" hidden></div>
+        <footer class="pop-dialog-foot">
+          <button class="btn ghost" type="button" data-dialog-close>Cancel</button>
+          <button class="btn danger" type="submit" id="confirmSubmit">Delete</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <div class="pop-toasts" id="toastHost" aria-live="polite"></div>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>
